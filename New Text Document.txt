@@ -1,0 +1,36 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: IAM role and policy for SSM document to copy logs to S3
+
+Resources:
+
+  SSMRoleForS3Access: 
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+                - ssm.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+  SSMRoleS3AccessPolicy:
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyName: SSM-S3-Access
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 
+              - s3:PutObject
+            Resource: arn:aws:s3:::cf-templates-mytjfl4lm21z-ap-south-1
+      Roles:
+        - !Ref SSMRoleForS3Access
